@@ -14,3 +14,7 @@ RUN chown -R vagrant /opt/zookeeper/conf/zoo.cfg
 RUN cd /opt && aria2c -q 'https://dlcdn.apache.org/storm/apache-storm-2.3.0/apache-storm-2.3.0.tar.gz' && tar xf apache-storm*.tar.gz && rm -rf apache-storm*.tar.gz && mv apache-storm* storm && cd storm && mkdir data && cd .. && chown -R vagrant storm
 COPY resources/storm.yaml /opt/storm/conf/
 RUN chown -R vagrant /opt/storm/conf/storm.yaml
+
+# IntelliJ
+USER vagrant
+RUN cd /home/vagrant && aria2c -q "https://download.jetbrains.com/product?code=ii&latest&distribution=linux" && tar xf *.tar.gz && rm *.tar.gz
