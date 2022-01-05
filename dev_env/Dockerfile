@@ -18,3 +18,4 @@ RUN chown -R vagrant /opt/storm/conf/storm.yaml
 # IntelliJ
 USER vagrant
 RUN cd /home/vagrant && aria2c -q "https://download.jetbrains.com/product?code=ii&latest&distribution=linux" && tar xf *.tar.gz && rm *.tar.gz
+USER root
