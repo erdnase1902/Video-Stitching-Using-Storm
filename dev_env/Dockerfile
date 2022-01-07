@@ -20,5 +20,5 @@ USER vagrant
 RUN cd /home/vagrant && aria2c -q "https://download.jetbrains.com/product?code=ii&latest&distribution=linux" && tar xf *.tar.gz && rm *.tar.gz
 
 # storm Git repo
-RUN cd /home/vagrant && git clone -q https://github.com/apache/storm.git
+RUN cd /home/vagrant && git clone -q https://github.com/apache/storm.git && cd storm && mvn clean install -DskipTests=true -q
 USER root
