@@ -1,5 +1,8 @@
 # To use x11 in ubuntu host, first run "xhost+" in the host
-
+r = Random.new
+port1 = r.rand(10000...65535)
+port2 = r.rand(10000...65535)
+port3 = r.rand(10000...65535)
 
 module OS
   def OS.windows?
@@ -64,10 +67,7 @@ config.vm.network "private_network", type: "dhcp"
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # NOTE: This will enable public access to the opened port
-config.vm.network "forwarded_port", guest: 3389, host: 62665, auto_correct: true
-config.vm.network "forwarded_port", guest: 11111, host: 11111, auto_correct: true
-config.vm.network "forwarded_port", guest: 11112, host: 11112, auto_correct: true
-config.vm.network "forwarded_port", guest: 11113, host: 11113, auto_correct: true
-config.vm.network "forwarded_port", guest: 11114, host: 11114, auto_correct: true
-config.vm.network "forwarded_port", guest: 11115, host: 11115, auto_correct: true
+config.vm.network "forwarded_port", guest: 3389, host: "#{port1}", auto_correct: true
+config.vm.network "forwarded_port", guest: 11111, host: "#{port2}", auto_correct: true
+config.vm.network "forwarded_port", guest: 11112, host: "#{port3}", auto_correct: true
 end
