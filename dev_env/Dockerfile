@@ -1,5 +1,5 @@
 FROM erdnase/vm:generic
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y openjdk-8-jdk python-is-python3 maven gpicview vlc && apt-get clean
+RUN apt-get update; DEBIAN_FRONTEND="noninteractive" apt-get install -y openjdk-8-jdk python-is-python3 maven gpicview vlc && apt-get clean
 RUN echo "JAVA_HOME=$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')" >> /etc/environment
 
 # zookeeper
