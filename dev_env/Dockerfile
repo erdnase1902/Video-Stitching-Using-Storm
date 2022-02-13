@@ -1,5 +1,5 @@
 FROM erdnase/vm:generic
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y openjdk-8-jdk python-is-python3 maven && apt-get clean
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y openjdk-8-jdk python-is-python3 maven gpicview vlc && apt-get clean
 RUN echo "JAVA_HOME=$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')" >> /etc/environment
 
 # zookeeper
@@ -18,5 +18,8 @@ RUN chown -R vagrant /opt/storm/conf/storm.yaml
 # IntelliJ
 USER vagrant
 RUN cd /home/vagrant && aria2c -q "https://download.jetbrains.com/product?code=ii&latest&distribution=linux" && tar xf *.tar.gz && rm *.tar.gz
+
+# Sample Project
+RUN cd /home/vagrant && git clone https://github.com/ADMIcloud/examples.git && git clone https://github.com/Coveros/helloworld
 
 USER root
