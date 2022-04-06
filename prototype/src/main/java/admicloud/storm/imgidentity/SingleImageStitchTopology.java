@@ -18,6 +18,12 @@ import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.bytedeco.opencv.opencv_core.*;
+import org.bytedeco.opencv.opencv_stitching.Stitcher;
+import static org.bytedeco.opencv.global.opencv_imgproc.*;
+import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
+import static org.bytedeco.opencv.global.opencv_stitching.createStitcher;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -53,9 +59,7 @@ public class SingleImageStitchTopology {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//      _collector.emit(new Values(sentence));
             _collector.emit(new Values(randomImg, randomImg2));
-
         }
 
         @Override
@@ -72,7 +76,7 @@ public class SingleImageStitchTopology {
         }
     }
 
-    public static class DoNothing extends BaseBasicBolt {
+    public static class StitchBolt extends BaseBasicBolt {
         @Override
         public void declareOutputFields(OutputFieldsDeclarer declarer) {
             declarer.declare(new Fields("img", "img2"));
@@ -84,13 +88,6 @@ public class SingleImageStitchTopology {
         }
 
         public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
-      /*
-      String sentence = tuple.getStringByField("sentence");
-      String words[] = sentence.split(" ");
-      for (String w : words) {
-        basicOutputCollector.emit(new Values(w));
-      }
-      */
             byte[] img = tuple.getBinaryByField("img");
             byte[] img2 = tuple.getBinaryByField("img2");
             basicOutputCollector.emit(new Values(img, img2));
@@ -103,16 +100,6 @@ public class SingleImageStitchTopology {
 
         @Override
         public void execute(Tuple tuple, BasicOutputCollector collector) {
-      /*
-      String word = tuple.getString(0);
-      Integer count = counts.get(word);
-      if (count == null)
-        count = 0;
-      count++;
-      counts.put(word, count);
-      LOG.info("Count of word: " + word + " = " + count);
-      collector.emit(new Values(word, count));
-      * */
             byte[] img = tuple.getBinaryByField("img");
             byte[] img2 = tuple.getBinaryByField("img2");
             String filename = count.toString() + ".jpg";
@@ -139,7 +126,7 @@ public class SingleImageStitchTopology {
 
         builder.setSpout("spout", new RandomImageSpout(), 1);
 
-        builder.setBolt("split", new DoNothing(), 1).shuffleGrouping("spout");
+        builder.setBolt("split", new StitchBolt(), 1).shuffleGrouping("spout");
         builder.setBolt("count", new SaveImg(), 1).shuffleGrouping("split");
 
         Config conf = new Config();
