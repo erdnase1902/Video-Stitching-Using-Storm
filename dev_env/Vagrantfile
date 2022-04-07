@@ -29,11 +29,11 @@ Vagrant.configure("2") do |config|
   config.ssh.password = "vagrant"
   config.vm.provider :docker do |d|
     if OS.windows?
-      d.create_args = ['--sysctl', 'net.ipv4.ip_default_ttl=66', '--privileged=true', '-v', '/var/lib/docker', '--shm-size', '2gb']
+      d.create_args = ['--sysctl', 'net.ipv4.ip_default_ttl=66', '--sysctl', 'net.ipv6.conf.all.hop_limit=66', '--privileged=true', '-v', '/var/lib/docker', '--shm-size', '2gb']
     elsif OS.mac?
-      d.create_args = ['--sysctl', 'net.ipv4.ip_default_ttl=66', '--privileged=true', '-v', '/var/lib/docker', '--shm-size', '2gb']
+      d.create_args = ['--sysctl', 'net.ipv4.ip_default_ttl=66', '--sysctl', 'net.ipv6.conf.all.hop_limit=66', '--privileged=true', '-v', '/var/lib/docker', '--shm-size', '2gb']
     else
-      d.create_args = ['--sysctl', 'net.ipv4.ip_default_ttl=66', '--privileged=true', '-v', '/var/lib/docker', '--shm-size', '2gb', '-v', '/tmp/.X11-unix:/tmp/.X11-unix']
+      d.create_args = ['--sysctl', 'net.ipv4.ip_default_ttl=66', '--sysctl', 'net.ipv6.conf.all.hop_limit=66', '--privileged=true', '-v', '/var/lib/docker', '--shm-size', '2gb', '-v', '/tmp/.X11-unix:/tmp/.X11-unix']
     end
      d.image = "erdnase/vm:storm"
      d.remains_running = true
