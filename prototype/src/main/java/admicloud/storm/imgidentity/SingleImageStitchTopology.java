@@ -4,8 +4,10 @@ import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.shade.org.apache.commons.io.FileUtils;
+import org.apache.storm.shade.org.apache.commons.lang.ObjectUtils;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
+import org.apache.storm.thrift.Option;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.TopologyBuilder;
@@ -15,14 +17,20 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_stitching.Stitcher;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_stitching.createStitcher;
+
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -77,9 +85,11 @@ public class SingleImageStitchTopology {
     }
 
     public static class StitchBolt extends BaseBasicBolt {
+        Stitcher stitcher = createStitcher(false);
+
         @Override
         public void declareOutputFields(OutputFieldsDeclarer declarer) {
-            declarer.declare(new Fields("img", "img2"));
+            declarer.declare(new Fields("result"));
         }
 
         @Override
@@ -90,7 +100,31 @@ public class SingleImageStitchTopology {
         public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
             byte[] img = tuple.getBinaryByField("img");
             byte[] img2 = tuple.getBinaryByField("img2");
-            basicOutputCollector.emit(new Values(img, img2));
+
+
+            // Fix below code block by referring to ByteVsMat
+            org.bytedeco.opencv.opencv_core.Mat left_img = new org.bytedeco.opencv.opencv_core.Mat(img);
+            org.bytedeco.opencv.opencv_core.Mat right_img = new org.bytedeco.opencv.opencv_core.Mat(img2);
+            MatVector imgs = new MatVector();
+            imgs.resize(1);
+            imgs.put(0, left_img);
+            imgs.resize(2);
+            imgs.put(1, right_img);
+
+
+            org.bytedeco.opencv.opencv_core.Mat pano = new org.bytedeco.opencv.opencv_core.Mat();
+
+            int status = stitcher.stitch(imgs, pano);
+
+            if (status != Stitcher.OK) {
+                System.out.println("Can't stitch images, error code = " + status);
+                System.exit(-1);
+            }
+
+            imwrite("result.jpg", pano);
+
+
+            basicOutputCollector.emit(new Values(img));
         }
     }
 
