@@ -85,7 +85,13 @@ public class SingleImageStitchTopology {
     }
 
     public static class StitchBolt extends BaseBasicBolt {
-        Stitcher stitcher = createStitcher(false);
+        Stitcher stitcher;
+
+        @Override
+        public void prepare(Map stormConf, TopologyContext context) {
+            super.prepare(stormConf, context);
+            stitcher = createStitcher(false);
+        }
 
         @Override
         public void declareOutputFields(OutputFieldsDeclarer declarer) {
@@ -103,8 +109,8 @@ public class SingleImageStitchTopology {
 
 
             // Fix below code block by referring to ByteVsMat
-            org.bytedeco.opencv.opencv_core.Mat left_img = new org.bytedeco.opencv.opencv_core.Mat(img);
-            org.bytedeco.opencv.opencv_core.Mat right_img = new org.bytedeco.opencv.opencv_core.Mat(img2);
+            org.bytedeco.opencv.opencv_core.Mat left_img = imdecode(new org.bytedeco.opencv.opencv_core.Mat(img, false), -1);
+            org.bytedeco.opencv.opencv_core.Mat right_img = imdecode(new org.bytedeco.opencv.opencv_core.Mat(img2, false), -1);
             MatVector imgs = new MatVector();
             imgs.resize(1);
             imgs.put(0, left_img);
@@ -121,9 +127,8 @@ public class SingleImageStitchTopology {
                 System.exit(-1);
             }
 
-            imwrite("result.jpg", pano);
-
-
+            imwrite("/home/vagrant/out_imgs/result.jpg", pano);
+//            System.exit(-1);
             basicOutputCollector.emit(new Values(img));
         }
     }
@@ -134,8 +139,8 @@ public class SingleImageStitchTopology {
 
         @Override
         public void execute(Tuple tuple, BasicOutputCollector collector) {
-            byte[] img = tuple.getBinaryByField("img");
-            byte[] img2 = tuple.getBinaryByField("img2");
+            byte[] img = tuple.getBinaryByField("result");
+            byte[] img2 = tuple.getBinaryByField("result");
             String filename = count.toString() + ".jpg";
             count = count + 1;
 
