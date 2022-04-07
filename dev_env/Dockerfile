@@ -1,5 +1,5 @@
 FROM erdnase/vm:generic
-RUN apt-get update; DEBIAN_FRONTEND="noninteractive" apt-get install -y ffmpeg openjdk-8-jdk python-is-python3 maven gpicview vlc && apt-get clean
+RUN apt-get update; DEBIAN_FRONTEND="noninteractive" apt-get install -y ffmpeg openjdk-8-jdk python-is-python3 maven gpicview vlc imagemagick && apt-get clean
 RUN echo "JAVA_HOME=$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')" >> /etc/environment
 
 # zookeeper
@@ -21,5 +21,14 @@ RUN cd /home/vagrant && aria2c -q "https://download.jetbrains.com/product?code=i
 
 # Sample Project
 RUN cd /home/vagrant && git clone https://github.com/ADMIcloud/examples.git && git clone https://github.com/Coveros/helloworld
+
+# Sample Video preprocessed for convenience
+USER root
+RUN pip3 install youtube-dl pillow
+USER vagrant
+RUN cd /home/vagrant && mkdir sample-video && cd sample-video && youtube-dl -f 137  https://www.youtube.com/watch?v=z3frSkVJqLw
+RUN cd /home/vagrant/sample-video/ && mkdir frames && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg
+COPY resources/crop_img.py /home/vagrant
+RUN cd /home/vagrant/sample-video/ && mkdir frames_split && cd /home/vagrant && python3 crop_img.py && rm crop_img.py
 
 USER root
