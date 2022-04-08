@@ -30,5 +30,6 @@ RUN cd /home/vagrant && mkdir sample-video && cd sample-video && youtube-dl -f 1
 RUN cd /home/vagrant/sample-video/ && mkdir frames && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg
 COPY resources/crop_img.py /home/vagrant
 RUN cd /home/vagrant/sample-video/ && mkdir frames_split && cd /home/vagrant && python3 crop_img.py && rm crop_img.py
+RUN cd /home/vagrant && mkdir out_imgs
 
 USER root
