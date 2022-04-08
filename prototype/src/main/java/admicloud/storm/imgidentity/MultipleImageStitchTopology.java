@@ -17,6 +17,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.Utils;
+import org.bytedeco.javacpp.BytePointer;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -29,7 +30,7 @@ import org.bytedeco.opencv.opencv_stitching.Stitcher;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_stitching.createStitcher;
-
+import static org.opencv.core.CvType.CV_8UC;
 
 
 import java.io.ByteArrayOutputStream;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -95,7 +97,7 @@ public class MultipleImageStitchTopology {
 
         @Override
         public void declareOutputFields(OutputFieldsDeclarer declarer) {
-            declarer.declare(new Fields("result"));
+            declarer.declare(new Fields("result", "rows", "cols", "channels"));
         }
 
         @Override
@@ -127,9 +129,10 @@ public class MultipleImageStitchTopology {
                 System.exit(-1);
             }
 
-            imwrite("/home/vagrant/out_imgs/result.jpg", pano);
-//            System.exit(-1);
-            basicOutputCollector.emit(new Values(img));
+//            imwrite("/home/vagrant/out_imgs/resdult.jpg", pano);
+            byte[] pano_bytearr = new byte[pano.channels()*pano.cols()*pano.rows()];
+            pano.data().get(pano_bytearr);
+            basicOutputCollector.emit(new Values(pano_bytearr, pano.rows(), pano.cols(), pano.channels()));
         }
     }
 
@@ -140,15 +143,20 @@ public class MultipleImageStitchTopology {
         @Override
         public void execute(Tuple tuple, BasicOutputCollector collector) {
             byte[] img = tuple.getBinaryByField("result");
-            byte[] img2 = tuple.getBinaryByField("result");
+            int rows = tuple.getIntegerByField("rows");
+            int cols = tuple.getIntegerByField("cols");
+            int channels = tuple.getIntegerByField("channels");
+
+
+
+//            org.bytedeco.opencv.opencv_core.Mat img_mat = new org.bytedeco.opencv.opencv_core.Mat(img, false);
+            org.bytedeco.opencv.opencv_core.Mat img_mat = new org.bytedeco.opencv.opencv_core.Mat(rows, cols, CV_8UC(channels), new BytePointer(img));
+
             String filename = count.toString() + ".jpg";
             count = count + 1;
 
-            try {
-                FileUtils.writeByteArrayToFile(new File("/home/vagrant/out_imgs/" + filename), img2);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            imwrite("/home/vagrant/out_imgs/" + filename, img_mat);
+
             collector.emit(new Values("word", count));
 
         }
@@ -180,7 +188,7 @@ public class MultipleImageStitchTopology {
             conf.setMaxTaskParallelism(1);
 
             LocalCluster cluster = new LocalCluster();
-            cluster.submitTopology("multiple-image", conf, builder.createTopology());
+            cluster.submitTopology("multi-image", conf, builder.createTopology());
 
             Thread.sleep(10000);
 

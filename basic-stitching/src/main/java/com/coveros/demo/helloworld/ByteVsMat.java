@@ -18,6 +18,7 @@ public class ByteVsMat {
         img_arr = Files.readAllBytes(Paths.get("/vagrant/basic-stitching/sample-left.jpg"));
         org.bytedeco.opencv.opencv_core.Mat img_mat_temp = new org.bytedeco.opencv.opencv_core.Mat(img_arr, false);
         org.bytedeco.opencv.opencv_core.Mat img_mat = imdecode(img_mat_temp, -1);
+        img_mat.asByteBuffer();
         imwrite("result.jpg", img_mat);
     }
 }
