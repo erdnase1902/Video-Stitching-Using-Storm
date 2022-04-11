@@ -81,7 +81,7 @@ public class MultipleImageStitchTopology {
 
         @Override
         public void nextTuple() {
-            Utils.sleep(500);
+            Utils.sleep(100);
             byte[] randomImg = null;
             byte[] randomImg2 = null;
             try {
@@ -90,7 +90,7 @@ public class MultipleImageStitchTopology {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (fileCounter < leftFiles.length) {
+            if (fileCounter < leftFiles.length - 1) {
                 fileCounter += 1;
             }
 
