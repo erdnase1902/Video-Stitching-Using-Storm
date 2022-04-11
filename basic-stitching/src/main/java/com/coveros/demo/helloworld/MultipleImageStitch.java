@@ -25,6 +25,7 @@ public class MultipleImageStitch {
         File[] rightFiles = Arrays.stream(listOfFiles)
                 .filter(file -> file.isFile() && file.getName().contains("r"))
                 .toArray(File[]::new);
+        int fileNameCounter = 0;
 
 
         Arrays.sort(leftFiles, Comparator.comparingInt(f -> Integer.parseInt(f.getName().substring(3, f.getName().length() - 5)))
@@ -57,7 +58,8 @@ public class MultipleImageStitch {
                 continue;
             }
 
-            imwrite(Paths.get("/home/vagrant/out_imgs/", seqNumsString[idx] + ".jpg").toString(), pano);
+            imwrite(Paths.get("/home/vagrant/out_imgs/", fileNameCounter + ".jpg").toString(), pano);
+            fileNameCounter++;
 
         }
 

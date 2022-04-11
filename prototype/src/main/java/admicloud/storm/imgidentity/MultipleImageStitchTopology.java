@@ -41,21 +41,42 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.Arrays;
 
 public class MultipleImageStitchTopology {
+
+
+
+
     private static Logger LOG = LoggerFactory.getLogger(IdentityImageTopology.class);
 
     public static class RandomImageSpout extends BaseRichSpout {
         SpoutOutputCollector _collector;
         Random _rand;
 
+        File folder = new File("/home/vagrant/sample-video/frames_split");
+        File[] listOfFiles = folder.listFiles();
+        File[] leftFiles;
+        File[] rightFiles;
+
+        int fileCounter = 0;
+
         @Override
         public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
             _collector = collector;
             _rand = new Random();
+            leftFiles = Arrays.stream(listOfFiles)
+                    .filter(file -> file.isFile() && file.getName().contains("l"))
+                    .toArray(File[]::new);
+            rightFiles = Arrays.stream(listOfFiles)
+                    .filter(file -> file.isFile() && file.getName().contains("r"))
+                    .toArray(File[]::new);
+            Arrays.sort(leftFiles, Comparator.comparingInt(f -> Integer.parseInt(f.getName().substring(3, f.getName().length() - 5)))
+            );
+
+            Arrays.sort(rightFiles, Comparator.comparingInt(f -> Integer.parseInt(f.getName().substring(3, f.getName().length() - 5)))
+            );
         }
 
         @Override
@@ -64,11 +85,15 @@ public class MultipleImageStitchTopology {
             byte[] randomImg = null;
             byte[] randomImg2 = null;
             try {
-                randomImg = Files.readAllBytes(Paths.get("/vagrant/prototype/sample-left.jpg"));
-                randomImg2 = Files.readAllBytes(Paths.get("/vagrant/prototype/sample-right.jpg"));
+                randomImg = Files.readAllBytes(Paths.get(leftFiles[fileCounter].getAbsolutePath()));
+                randomImg2 = Files.readAllBytes(Paths.get(rightFiles[fileCounter].getAbsolutePath()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            if (fileCounter < leftFiles.length) {
+                fileCounter += 1;
+            }
+
             _collector.emit(new Values(randomImg, randomImg2));
         }
 
@@ -126,13 +151,14 @@ public class MultipleImageStitchTopology {
 
             if (status != Stitcher.OK) {
                 System.out.println("Can't stitch images, error code = " + status);
-                System.exit(-1);
+
+            }
+            else {
+                byte[] pano_bytearr = new byte[pano.channels()*pano.cols()*pano.rows()];
+                pano.data().get(pano_bytearr);
+                basicOutputCollector.emit(new Values(pano_bytearr, pano.rows(), pano.cols(), pano.channels()));
             }
 
-//            imwrite("/home/vagrant/out_imgs/resdult.jpg", pano);
-            byte[] pano_bytearr = new byte[pano.channels()*pano.cols()*pano.rows()];
-            pano.data().get(pano_bytearr);
-            basicOutputCollector.emit(new Values(pano_bytearr, pano.rows(), pano.cols(), pano.channels()));
         }
     }
 
@@ -180,7 +206,7 @@ public class MultipleImageStitchTopology {
         conf.setDebug(true);
 
         if (args != null && args.length > 0) {
-            conf.setNumWorkers(3);
+            conf.setNumWorkers(1);
 
             StormSubmitter.submitTopologyWithProgressBar(args[0], conf, builder.createTopology());
         }
@@ -190,9 +216,9 @@ public class MultipleImageStitchTopology {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("multi-image", conf, builder.createTopology());
 
-            Thread.sleep(10000);
+//            Thread.sleep(10000000);
 
-            cluster.shutdown();
+//            cluster.shutdown();
         }
     }
 }
