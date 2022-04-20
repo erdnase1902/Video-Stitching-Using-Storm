@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_stitching.Stitcher;
+
+import static java.lang.System.exit;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_stitching.createStitcher;
@@ -54,8 +56,18 @@ public class MultipleImageStitchTopology {
     public static class RandomImageSpout extends BaseRichSpout {
         SpoutOutputCollector _collector;
         Random _rand;
+        List<String> configList;
 
-        File folder = new File("/home/vagrant/sample-video/frames_split");
+        {
+            try {
+                configList = Files.readAllLines(Paths.get("/home/vagrant/stitch.config"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                exit(1);
+            }
+        }
+        String folderLocation = configList.get(0);
+        File folder = new File(folderLocation/*"/home/vagrant/sample-video/frames_split"*/);
         File[] listOfFiles = folder.listFiles();
         File[] leftFiles;
         File[] rightFiles;
