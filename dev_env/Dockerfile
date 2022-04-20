@@ -29,8 +29,17 @@ USER vagrant
 RUN cd /home/vagrant && mkdir sample-video && cd sample-video && youtube-dl -f 137  https://www.youtube.com/watch?v=z3frSkVJqLw
 RUN cd /home/vagrant/sample-video/ && mkdir frames && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg
 COPY resources/crop_img.py /home/vagrant
-RUN cd /home/vagrant/sample-video/ && mkdir frames_split && cd /home/vagrant && python3 crop_img.py && rm crop_img.py
+RUN cd /home/vagrant/sample-video/ && mkdir frames_split && cd /home/vagrant && python3 crop_img.py
 RUN cd /home/vagrant && mkdir out_imgs && mkdir out_video
+# Sample Video - By Resolution - More choices
+RUN cd /home/vagrant/ && mkdir sample-video-by-resolution
+RUN cd /home/vagrant/sample-video-by-resolution && mkdir 256x144 && cd 256x144 && youtube-dl -f 160  https://www.youtube.com/watch?v=z3frSkVJqLw && mkdir frames && mkdir frames_split && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg && cd /home/vagrant && python3 crop_img.py '/home/vagrant/sample-video-by-resolution/256x144/frames/' '/home/vagrant/sample-video-by-resolution/256x144/frames_split'
+RUN cd /home/vagrant/sample-video-by-resolution && mkdir 426x240 && cd 426x240 && youtube-dl -f 133  https://www.youtube.com/watch?v=z3frSkVJqLw && mkdir frames && mkdir frames_split && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg && cd /home/vagrant && python3 crop_img.py '/home/vagrant/sample-video-by-resolution/426x240/frames/' '/home/vagrant/sample-video-by-resolution/426x240/frames_split'
+RUN cd /home/vagrant/sample-video-by-resolution && mkdir 640x360 && cd 640x360 && youtube-dl -f 134  https://www.youtube.com/watch?v=z3frSkVJqLw && mkdir frames && mkdir frames_split && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg && cd /home/vagrant && python3 crop_img.py '/home/vagrant/sample-video-by-resolution/640x360/frames/' '/home/vagrant/sample-video-by-resolution/640x360/frames_split'
+RUN cd /home/vagrant/sample-video-by-resolution && mkdir 854x480 && cd 854x480 && youtube-dl -f 135  https://www.youtube.com/watch?v=z3frSkVJqLw && mkdir frames && mkdir frames_split && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg && cd /home/vagrant && python3 crop_img.py '/home/vagrant/sample-video-by-resolution/854x480/frames/' '/home/vagrant/sample-video-by-resolution/854x480/frames_split'
+RUN cd /home/vagrant/sample-video-by-resolution && mkdir 1280x720 && cd 1280x720 && youtube-dl -f 136  https://www.youtube.com/watch?v=z3frSkVJqLw && mkdir frames && mkdir frames_split && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg && cd /home/vagrant && python3 crop_img.py '/home/vagrant/sample-video-by-resolution/1280x720/frames/' '/home/vagrant/sample-video-by-resolution/1280x720/frames_split'
+RUN cd /home/vagrant/sample-video-by-resolution && mkdir 1920x1080 && cd 1920x1080 && youtube-dl -f 137  https://www.youtube.com/watch?v=z3frSkVJqLw && mkdir frames && mkdir frames_split && cd frames && ffmpeg -i ../*z3frSkVJqLw.mp4 -vf fps=30 out%d.jpg && cd /home/vagrant && python3 crop_img.py '/home/vagrant/sample-video-by-resolution/1920x1080/frames/' '/home/vagrant/sample-video-by-resolution/1920x1080/frames_split'
+
 
 # Create config file for input file location
 RUN touch /home/vagrant/stitch.config && echo '/home/vagrant/sample-video/frames_split' >> /home/vagrant/stitch.config

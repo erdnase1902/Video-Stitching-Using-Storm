@@ -3,11 +3,14 @@ from PIL import Image
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
+import sys
 
 
 if __name__ == '__main__':
     frames_path = '/home/vagrant/sample-video/frames'
     output_path = '/home/vagrant/sample-video/frames_split'
+    if len(sys.argv == 2):
+        frames_path, output_path = sys.argv[1], sys.argv[2]
     imgs = [join(frames_path, f) for f in listdir(frames_path) if isfile(join(frames_path, f))]
     for img in imgs:
         image = Image.open(img)
