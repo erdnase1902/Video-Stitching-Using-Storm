@@ -32,4 +32,7 @@ COPY resources/crop_img.py /home/vagrant
 RUN cd /home/vagrant/sample-video/ && mkdir frames_split && cd /home/vagrant && python3 crop_img.py && rm crop_img.py
 RUN cd /home/vagrant && mkdir out_imgs && mkdir out_video
 
+# Create config file for input file location
+RUN touch /home/vagrant/stitch.config && echo '/home/vagrant/sample-video/frames_split' >> /home/vagrant/stitch.config
+
 USER root
