@@ -44,17 +44,17 @@ Vagrant.configure("2") do |config|
 if OS.windows?
   config.vm.provision "shell", inline: <<-SHELL
   echo "export DISPLAY=host.docker.internal:0.0" >> /home/vagrant/.profile
-  xfce4-power-manager -q
+  # xfce4-power-manager -q
   SHELL
 elsif OS.mac?
   config.vm.provision "shell", inline: <<-SHELL
   echo "export DISPLAY=host.docker.internal:0.0" >> /home/vagrant/.profile
-  xfce4-power-manager -q
+  # xfce4-power-manager -q
   SHELL
 else
   config.vm.provision "shell", inline: <<-SHELL
   echo "export DISPLAY=#{ENV['DISPLAY']}" >> /home/vagrant/.profile
-  xfce4-power-manager -q
+  # xfce4-power-manager -q
   SHELL
 end
 #   config.vm.provision :shell, path: "install.sh", privileged: false
